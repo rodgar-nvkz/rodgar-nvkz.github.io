@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html><head lang="en"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="/static/66af9cc33d50.css" type="text/css" media="all">
+    <style>.content{background-color: black; padding: 30px; font-size: 14px}</style>
+</head>
+<body>
+    <div class="site-wrapper">
+        <header>
+    <div class="title">
+        <h1 class="title-text">Hi, I'm Mike</h1>
+        <div class="title-right">
+            <div class="title-citation"><br><a style="color:#444" href="http://www.youtube.com/watch?v=4qcPopWKJlQ" target="_blank">©</a> Nike Borzov</div>
+            <div class="title-citation">I’m just a little horsie but I’m an expensive one<br>Because I pull this massive cart from this to that river bank.<br></div>
+        </div>
+    </div>
+    <a href="/"><img class="header-logo" src="/static/header_logo.jpg" style="width: 100%"></a>
+</header>
+        <div class="content">
+<pre style="color:#d1d1d1;background:#000000;"><span style="color:#e66170; font-weight:bold; ">class</span> AbstractLetterProcessor<span style="color:#d2cd86; ">(</span><span style="color:#e66170; font-weight:bold; ">object</span><span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+    discard_tag <span style="color:#d2cd86; ">=</span> <span style="color:#00c4c4; ">''</span>
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> make_letter<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">,</span> email<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        <span style="color:#9999a9; ">""" Make 1 letter without mailgun headers """</span>
+        body <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>letter_body<span style="color:#d2cd86; ">(</span>email<span style="color:#d2cd86; ">)</span>
+        params <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>letter_params<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        <span style="color:#e66170; font-weight:bold; ">return</span> GlobalEmailStack<span style="color:#d2cd86; ">(</span>email<span style="color:#d2cd86; ">=</span>email<span style="color:#d2cd86; ">,</span> body<span style="color:#d2cd86; ">=</span>body<span style="color:#d2cd86; ">,</span> <span style="color:#00dddd; ">**</span>params<span style="color:#d2cd86; ">)</span>
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> create_letters<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        params <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>letter_params<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        params<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'headers'</span><span style="color:#d2cd86; ">]</span><span style="color:#d2cd86; ">.</span>update<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">.</span>mailgun_headers<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">)</span>
+        <span style="color:#e66170; font-weight:bold; ">with</span> Transaction<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span> <span style="color:#e66170; font-weight:bold; ">as</span> tx<span style="color:#d2cd86; ">:</span>
+            <span style="color:#e66170; font-weight:bold; ">for</span> email <span style="color:#e66170; font-weight:bold; ">in</span> self<span style="color:#d2cd86; ">.</span>get_emails<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+                body <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>letter_body<span style="color:#d2cd86; ">(</span>email<span style="color:#d2cd86; ">)</span>
+                GlobalEmailStack<span style="color:#d2cd86; ">.</span>objects<span style="color:#d2cd86; ">.</span>create<span style="color:#d2cd86; ">(</span>email<span style="color:#d2cd86; ">=</span>email<span style="color:#d2cd86; ">,</span> body<span style="color:#d2cd86; ">=</span>body<span style="color:#d2cd86; ">,</span> <span style="color:#00dddd; ">**</span>params<span style="color:#d2cd86; ">)</span>
+            self<span style="color:#d2cd86; ">.</span>post_create<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+            tx<span style="color:#d2cd86; ">.</span>commit<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> get_emails<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        <span style="color:#e66170; font-weight:bold; ">raise</span> NotImplementedError
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> letter_body<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">,</span> email<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        <span style="color:#e66170; font-weight:bold; ">raise</span> NotImplementedError
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> letter_params<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        <span style="color:#e66170; font-weight:bold; ">assert</span> self<span style="color:#d2cd86; ">.</span>discard_tag
+        <span style="color:#e66170; font-weight:bold; ">return</span> <span style="color:#b060b0; ">{</span><span style="color:#00c4c4; ">'mimetype'</span><span style="color:#d2cd86; ">:</span> <span style="color:#00c4c4; ">'text/html'</span><span style="color:#d2cd86; ">,</span> <span style="color:#00c4c4; ">'headers'</span><span style="color:#d2cd86; ">:</span> <span style="color:#b060b0; ">{</span><span style="color:#00c4c4; ">'Precedence'</span><span style="color:#d2cd86; ">:</span> <span style="color:#00c4c4; ">'bulk'</span><span style="color:#b060b0; ">}</span><span style="color:#d2cd86; ">,</span> <span style="color:#00c4c4; ">'tag'</span><span style="color:#d2cd86; ">:</span> self<span style="color:#d2cd86; ">.</span>discard_tag<span style="color:#b060b0; ">}</span>
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> mailgun_headers<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        <span style="color:#e66170; font-weight:bold; ">return</span> <span style="color:#b060b0; ">{</span><span style="color:#00c4c4; ">'X-Mailgun-Tag'</span><span style="color:#d2cd86; ">:</span> self<span style="color:#d2cd86; ">.</span>discard_tag<span style="color:#d2cd86; ">,</span> <span style="color:#00c4c4; ">'List-Unsubscribe'</span><span style="color:#d2cd86; ">:</span> <span style="color:#00c4c4; ">'&lt;%unsubscribe_email%&gt;'</span><span style="color:#b060b0; ">}</span>
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> post_create<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        <span style="color:#e66170; font-weight:bold; ">pass</span>
+
+
+<span style="color:#e66170; font-weight:bold; ">class</span> DispatchLetterProcessor<span style="color:#d2cd86; ">(</span>AbstractLetterProcessor<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+    discard_tag <span style="color:#d2cd86; ">=</span> <span style="color:#00c4c4; ">'dispatch'</span>
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> __init__<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">,</span> dispatch<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        self<span style="color:#d2cd86; ">.</span>dispatch <span style="color:#d2cd86; ">=</span> dispatch
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> get_emails<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        <span style="color:#e66170; font-weight:bold; ">return</span> self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>condition<span style="color:#d2cd86; ">.</span>emails_list<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> letter_body<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">,</span> email<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        context <span style="color:#d2cd86; ">=</span> <span style="color:#b060b0; ">{</span><span style="color:#00c4c4; ">'dispatch'</span><span style="color:#d2cd86; ">:</span> self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">,</span> <span style="color:#00c4c4; ">'discard'</span><span style="color:#d2cd86; ">:</span> DiscardedRecipient<span style="color:#d2cd86; ">.</span>get_by_email<span style="color:#d2cd86; ">(</span>email<span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">}</span>
+        <span style="color:#e66170; font-weight:bold; ">with</span> override<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>signature_lang<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+            <span style="color:#e66170; font-weight:bold; ">return</span> render_to_string<span style="color:#d2cd86; ">(</span><span style="color:#00c4c4; ">'mailing/letter-dispatch.html'</span><span style="color:#d2cd86; ">,</span> context<span style="color:#d2cd86; ">)</span>
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> letter_params<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        params <span style="color:#d2cd86; ">=</span> <span style="color:#e66170; font-weight:bold; ">super</span><span style="color:#d2cd86; ">(</span>DispatchLetterProcessor<span style="color:#d2cd86; ">,</span> self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">.</span>letter_params<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        params<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'account'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> <span style="color:#00c4c4; ">'dispatch'</span>
+        params<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'subject'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>subject
+        params<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'attachments'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>_attachments<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        params<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'headers'</span><span style="color:#d2cd86; ">]</span><span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'Reply-To'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>owner<span style="color:#d2cd86; ">.</span>email
+        <span style="color:#e66170; font-weight:bold; ">return</span> params
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> _attachments<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        files <span style="color:#d2cd86; ">=</span> <span style="color:#d2cd86; ">[</span><span style="color:#d2cd86; ">]</span>
+        <span style="color:#e66170; font-weight:bold; ">for</span> fl <span style="color:#e66170; font-weight:bold; ">in</span> self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>attachments<span style="color:#d2cd86; ">:</span>
+            <span style="color:#e66170; font-weight:bold; ">assert</span> fl<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'file_name'</span><span style="color:#d2cd86; ">]</span><span style="color:#d2cd86; ">,</span> <span style="color:#00c4c4; ">'empty attachment filename Dispatch #%s'</span> <span style="color:#00dddd; ">%</span> self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>pk
+            files<span style="color:#d2cd86; ">.</span>append<span style="color:#d2cd86; ">(</span><span style="color:#b060b0; ">{</span><span style="color:#00c4c4; ">'filename'</span><span style="color:#d2cd86; ">:</span> fl<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'file_name'</span><span style="color:#d2cd86; ">]</span><span style="color:#d2cd86; ">,</span> <span style="color:#00c4c4; ">'content'</span><span style="color:#d2cd86; ">:</span> TranioFile<span style="color:#d2cd86; ">(</span>fl<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'file_path'</span><span style="color:#d2cd86; ">]</span><span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">.</span>read<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">}</span><span style="color:#d2cd86; ">)</span>
+        <span style="color:#e66170; font-weight:bold; ">return</span> files
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> mailgun_headers<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        headers <span style="color:#d2cd86; ">=</span> <span style="color:#e66170; font-weight:bold; ">super</span><span style="color:#d2cd86; ">(</span>DispatchLetterProcessor<span style="color:#d2cd86; ">,</span> self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">.</span>mailgun_headers<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        headers<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'List-id'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> <span style="color:#00c4c4; ">'&lt;%s&gt;'</span> <span style="color:#00dddd; ">%</span> self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>mailgun_id
+        headers<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'X-Mailgun-Campaign-Id'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>mailgun_id
+        headers<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'X-Postmaster-Msgtype'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>mailgun_id<span style="color:#d2cd86; ">.</span>replace<span style="color:#d2cd86; ">(</span><span style="color:#00c4c4; ">'-'</span><span style="color:#d2cd86; ">,</span> <span style="color:#00c4c4; ">'_'</span><span style="color:#d2cd86; ">)</span>
+        <span style="color:#e66170; font-weight:bold; ">return</span> headers
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> post_create<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>condition<span style="color:#d2cd86; ">.</span>sent_to <span style="color:#d2cd86; ">=</span> <span style="color:#00c4c4; ">u' '</span><span style="color:#d2cd86; ">.</span>join<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">.</span>get_emails<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">)</span>
+        self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>condition<span style="color:#d2cd86; ">.</span>save<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>status <span style="color:#d2cd86; ">=</span> Dispatch<span style="color:#d2cd86; ">.</span>STATUS_DONE
+        self<span style="color:#d2cd86; ">.</span>dispatch<span style="color:#d2cd86; ">.</span>save<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+
+        <span style="color:#9999a9; "># insides copy</span>
+        self<span style="color:#d2cd86; ">.</span>make_letter<span style="color:#d2cd86; ">(</span><span style="color:#00c4c4; ">'sales@tranio.ru'</span><span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">.</span>save<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        self<span style="color:#d2cd86; ">.</span>make_letter<span style="color:#d2cd86; ">(</span><span style="color:#00c4c4; ">'marina@tranio.com'</span><span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">.</span>save<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        self<span style="color:#d2cd86; ">.</span>make_letter<span style="color:#d2cd86; ">(</span><span style="color:#00c4c4; ">'subscr4755@gmail.com'</span><span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">.</span>save<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+
+
+<span style="color:#e66170; font-weight:bold; ">class</span> SmiLetterProcessor<span style="color:#d2cd86; ">(</span>AbstractLetterProcessor<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+    discard_tag <span style="color:#d2cd86; ">=</span> <span style="color:#00c4c4; ">'smi'</span>
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> __init__<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">,</span> smi_delivery<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        self<span style="color:#d2cd86; ">.</span>sd <span style="color:#d2cd86; ">=</span> smi_delivery
+        self<span style="color:#d2cd86; ">.</span>shipments <span style="color:#d2cd86; ">=</span> None
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> get_emails<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        self<span style="color:#d2cd86; ">.</span>sd<span style="color:#d2cd86; ">.</span>smi_expand_emails<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        self<span style="color:#d2cd86; ">.</span>shipments <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>sd<span style="color:#d2cd86; ">.</span>shipments<span style="color:#d2cd86; ">.</span><span style="color:#e66170; font-weight:bold; ">filter</span><span style="color:#d2cd86; ">(</span>sended_at<span style="color:#d2cd86; ">=</span>None<span style="color:#d2cd86; ">,</span> rejected<span style="color:#d2cd86; ">=</span>False<span style="color:#d2cd86; ">)</span>
+        <span style="color:#e66170; font-weight:bold; ">return</span> <span style="color:#e66170; font-weight:bold; ">filter</span><span style="color:#d2cd86; ">(</span><span style="color:#e66170; font-weight:bold; ">bool</span><span style="color:#d2cd86; ">,</span> self<span style="color:#d2cd86; ">.</span>shipments<span style="color:#d2cd86; ">.</span>values_list<span style="color:#d2cd86; ">(</span><span style="color:#00c4c4; ">'email'</span><span style="color:#d2cd86; ">,</span> flat<span style="color:#d2cd86; ">=</span>True<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">)</span>
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> letter_body<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">,</span> email<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        context <span style="color:#d2cd86; ">=</span> <span style="color:#b060b0; ">{</span><span style="color:#00c4c4; ">'delivery'</span><span style="color:#d2cd86; ">:</span> self<span style="color:#d2cd86; ">.</span>sd<span style="color:#d2cd86; ">,</span> <span style="color:#00c4c4; ">'discard'</span><span style="color:#d2cd86; ">:</span> DiscardedRecipient<span style="color:#d2cd86; ">.</span>get_by_email<span style="color:#d2cd86; ">(</span>email<span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">}</span>
+        template <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>sd<span style="color:#d2cd86; ">.</span>template_map<span style="color:#d2cd86; ">[</span>self<span style="color:#d2cd86; ">.</span>sd<span style="color:#d2cd86; ">.</span>lang<span style="color:#d2cd86; ">]</span>
+        <span style="color:#e66170; font-weight:bold; ">with</span> override<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">.</span>sd<span style="color:#d2cd86; ">.</span>lang<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+            <span style="color:#e66170; font-weight:bold; ">return</span> render_to_string<span style="color:#d2cd86; ">(</span>template<span style="color:#d2cd86; ">,</span> context<span style="color:#d2cd86; ">)</span>
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> letter_params<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        params <span style="color:#d2cd86; ">=</span> <span style="color:#e66170; font-weight:bold; ">super</span><span style="color:#d2cd86; ">(</span>SmiLetterProcessor<span style="color:#d2cd86; ">,</span> self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">.</span>letter_params<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        params<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'account'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>sd<span style="color:#d2cd86; ">.</span>get_accounts<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">[</span><span style="color:#00a800; ">0</span><span style="color:#d2cd86; ">]</span><span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'name'</span><span style="color:#d2cd86; ">]</span>
+        params<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'subject'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>sd<span style="color:#d2cd86; ">.</span>subject
+        params<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'attachments'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> self<span style="color:#d2cd86; ">.</span>_attachments<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        params<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'headers'</span><span style="color:#d2cd86; ">]</span><span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'Reply-To'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> <span style="color:#00c4c4; ">u'&lt;pr@tranio.com&gt;'</span>
+        <span style="color:#e66170; font-weight:bold; ">return</span> params
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> _attachments<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        files <span style="color:#d2cd86; ">=</span> <span style="color:#d2cd86; ">[</span><span style="color:#d2cd86; ">]</span>
+        <span style="color:#e66170; font-weight:bold; ">for</span> fl <span style="color:#e66170; font-weight:bold; ">in</span> self<span style="color:#d2cd86; ">.</span>sd<span style="color:#d2cd86; ">.</span>smi_files<span style="color:#d2cd86; ">.</span><span style="color:#e66170; font-weight:bold; ">all</span><span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+            <span style="color:#e66170; font-weight:bold; ">if</span> os<span style="color:#d2cd86; ">.</span>path<span style="color:#d2cd86; ">.</span>isfile<span style="color:#d2cd86; ">(</span>fl<span style="color:#d2cd86; ">.</span><span style="color:#e66170; font-weight:bold; ">file</span><span style="color:#d2cd86; ">.</span>path<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+                files<span style="color:#d2cd86; ">.</span>append<span style="color:#d2cd86; ">(</span><span style="color:#b060b0; ">{</span><span style="color:#00c4c4; ">'filename'</span><span style="color:#d2cd86; ">:</span> os<span style="color:#d2cd86; ">.</span>path<span style="color:#d2cd86; ">.</span>basename<span style="color:#d2cd86; ">(</span>fl<span style="color:#d2cd86; ">.</span><span style="color:#e66170; font-weight:bold; ">file</span><span style="color:#d2cd86; ">.</span>path<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">,</span> <span style="color:#00c4c4; ">'content'</span><span style="color:#d2cd86; ">:</span> fl<span style="color:#d2cd86; ">.</span><span style="color:#e66170; font-weight:bold; ">file</span><span style="color:#d2cd86; ">.</span>read<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">}</span><span style="color:#d2cd86; ">)</span>
+        <span style="color:#e66170; font-weight:bold; ">return</span> files
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> mailgun_headers<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        today <span style="color:#d2cd86; ">=</span> datetime<span style="color:#d2cd86; ">.</span>date<span style="color:#d2cd86; ">.</span>today<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        headers <span style="color:#d2cd86; ">=</span> <span style="color:#e66170; font-weight:bold; ">super</span><span style="color:#d2cd86; ">(</span>SmiLetterProcessor<span style="color:#d2cd86; ">,</span> self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">.</span>mailgun_headers<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+        headers<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'List-id'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> <span style="color:#00c4c4; ">'&lt;smi-newsletter_%s&gt;'</span> <span style="color:#00dddd; ">%</span> today<span style="color:#d2cd86; ">.</span>strftime<span style="color:#d2cd86; ">(</span><span style="color:#00c4c4; ">'%Y-%m'</span><span style="color:#d2cd86; ">)</span>
+        headers<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'X-Mailgun-Campaign-Id'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> <span style="color:#00c4c4; ">'pr_tranio_ru_from_smi-newsletter'</span>
+        headers<span style="color:#d2cd86; ">[</span><span style="color:#00c4c4; ">'X-Postmaster-Msgtype'</span><span style="color:#d2cd86; ">]</span> <span style="color:#d2cd86; ">=</span> <span style="color:#00c4c4; ">'smi_newsletter_%s'</span> <span style="color:#00dddd; ">%</span> today<span style="color:#d2cd86; ">.</span>strftime<span style="color:#d2cd86; ">(</span><span style="color:#00c4c4; ">'%Y_%m'</span><span style="color:#d2cd86; ">)</span>
+        <span style="color:#e66170; font-weight:bold; ">return</span> headers
+
+    <span style="color:#e66170; font-weight:bold; ">def</span> post_create<span style="color:#d2cd86; ">(</span>self<span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">:</span>
+        self<span style="color:#d2cd86; ">.</span>shipments<span style="color:#d2cd86; ">.</span>update<span style="color:#d2cd86; ">(</span>sended_at<span style="color:#d2cd86; ">=</span>datetime<span style="color:#d2cd86; ">.</span>datetime<span style="color:#d2cd86; ">.</span>now<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#d2cd86; ">,</span> send_error<span style="color:#d2cd86; ">=</span>None<span style="color:#d2cd86; ">)</span>
+        self<span style="color:#d2cd86; ">.</span>sd<span style="color:#d2cd86; ">.</span>completed <span style="color:#d2cd86; ">=</span> True
+        self<span style="color:#d2cd86; ">.</span>sd<span style="color:#d2cd86; ">.</span>save<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span>
+</pre>
+
+</div>
+        <footer>
+    <div class="footer-copyright">
+        <a rel="license external" href="http://creativecommons.org/licenses/by/3.0/" title="This work is licensed under a Creative Commons Attribution 3.0 Unported License">Some rights reserved</a>
+    </div>
+    <div class="footer-links">
+        <div><a rel="external" href="http://wordpress.org/extend/themes/twentyten">Theme adapted from twentyten</a></div>
+        <div><a rel="external" href="http://nouseforaname.deviantart.com/">Background by nouseforaname</a></div>
+        <div><a rel="external" href="https://www.djangoproject.com/">Powered by Django</a></div>
+    </div>
+</footer>
+    </div>
+    
+
+</body></html>
